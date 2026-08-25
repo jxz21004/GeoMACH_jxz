@@ -202,13 +202,34 @@ def clean():
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("extensions", nargs="*", choices=sorted(EXTENSIONS), help="Extensions to build (default: all).")
+
+    parser.add_argument(
+        "extensions",
+        nargs="*",
+        metavar="EXTENSION",
+        help=(
+            "Extensions to build (default: all). "
+            f"Available: {', '.join(sorted(EXTENSIONS))}"
+        ),
+    )
     parser.add_argument("--clean", action="store_true")
     parser.add_argument("--verbose", action="store_true")
+
     args = parser.parse_args(argv)
+
+    invalid = set(args.extensions) - set(EXTENSIONS)
+    if invalid:
+        parser.error(
+            f"invalid extension(s): {', '.join(sorted(invalid))}. "
+            f"Choose from: {', '.join(sorted(EXTENSIONS))}"
+        )
+
     if args.clean:
         clean()
+        return
+
     targets = args.extensions or list(EXTENSIONS)
+
     for name in targets:
         build_extension(name, verbose=args.verbose)
 
