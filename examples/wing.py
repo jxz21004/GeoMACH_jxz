@@ -41,7 +41,7 @@ class Wing(PGMconfiguration):
                 afm.addVertFlip('Mlw_1:'+str(i)+':'+str(j),'wing',[idims[i],jdims[j]],[idims[i+1],jdims[j]])
         for i in range(idims.shape[0]):
             for j in range(jdims.shape[0]-1):
-                if i == 0 or i is idims.shape[0]-1:
+                if i == 0 or i == idims.shape[0]-1:
                     afm.addVertFlip('Mlw_2:'+str(i)+':'+str(j),'wing',[idims[i],jdims[j]],[idims[i],jdims[j+1]])
                 else:
                     afm.addVertFlip('Mlw_2a:'+str(i)+':'+str(j),'wing',[idims[i],jdims[j]],[idims[i],jdims[j+1]],w=[1,0.85])

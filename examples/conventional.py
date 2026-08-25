@@ -190,7 +190,7 @@ class Conventional(PGMconfiguration):
                 afm.addVertFlip('Mrw_1:'+str(i)+':'+str(j),'rwing',[idims[i],1-jdims[j]],[idims[i+1],1-jdims[j]])
         for i in range(idims.shape[0]):
             for j in range(jdims.shape[0]-1):
-                if i == 0 or i is idims.shape[0]-1:
+                if i == 0 or i == idims.shape[0]-1:
                     afm.addVertFlip('Mlw_2:'+str(i)+':'+str(j),'lwing',[idims[i],jdims[j]],[idims[i],jdims[j+1]])
                     afm.addVertFlip('Mrw_2:'+str(i)+':'+str(j),'rwing',[idims[i],1-jdims[j]],[idims[i],1-jdims[j+1]])
                 else:
@@ -208,7 +208,7 @@ class Conventional(PGMconfiguration):
         idims = numpy.linspace(0.45,0.85,7)
         jdims = numpy.linspace(0,1,16)
         for i in range(idims.shape[0]):
-            if i == 0 or i is idims.shape[0]-1:
+            if i == 0 or i == idims.shape[0]-1:
                 afm.addCtrVert('Mcw_2:'+str(i)+':'+str(j),'lwing','rwing',idims[i])
             else:
                 afm.addCtrVert('Mcw_2a:'+str(i)+':'+str(j),'lwing','rwing',idims[i],w=[1,0.85])
