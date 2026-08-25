@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 from scipy.sparse.linalg import lsqr
 
-from GeoMACH.BSE.BSEmodel import BSEmodel
+from ..BSE.BSEmodel import BSEmodel
 from .Cp3dSurfAllocate import P3dSurfClass
 
 
@@ -100,6 +100,8 @@ def fit_plot3d_to_iges(
 
     bsurf.assemble()
 
+    target_surfaces = [surface.copy() for surface in surfaces]
+
     for isurf, surface in enumerate(surfaces):
         bsurf.vec["pt_str"](isurf)[:, :, :] = surface
 
@@ -112,11 +114,46 @@ def fit_plot3d_to_iges(
     cp = bsurf.vec["cp"].array
 
     kwargs = {"atol": 1.0e-12, "btol": 1.0e-12} if lsqr_kwargs is None else dict(lsqr_kwargs)
+
     for idim in range(3):
-        cp[:, idim] = lsqr(A, rhs[:, idim], **kwargs)[0]
+        result = lsqr(A, rhs[:, idim], **kwargs)
+
+        cp[:, idim] = result[0]
+
+        if export_debug:
+            print(
+                f"LSQR dim={idim}: "
+                f"iterations={result[2]}, "
+                f"residual={result[3]:.6e}"
+            )
 
     bsurf.apply_jacobian("cp_str", "d(cp_str)/d(cp)", "cp")
     bsurf.apply_jacobian("pt_str", "d(pt_str)/d(cp_str)", "cp_str")
+
+    if export_debug:
+        errors = []
+
+        for isurf, target in enumerate(target_surfaces):
+            fitted = bsurf.vec["pt_str"](isurf)
+
+            err = np.linalg.norm(
+                fitted - target,
+                axis=2,
+            )
+
+            errors.append(err.ravel())
+
+        errors = np.concatenate(errors)
+
+        print(
+            "Geometry fitting error:"
+        )
+        print(
+            f"max = {np.max(errors):.6e}"
+        )
+        print(
+            f"RMS = {np.sqrt(np.mean(errors**2)):.6e}"
+        )
 
     if export_debug:
         bsurf.vec["pt_str"].export_tec_str()
