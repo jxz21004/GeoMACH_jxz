@@ -143,7 +143,48 @@ class BSEvecStr(BSEvec):
         self._write('endsolid model')
         self._close_file()
 
-    def export_IGES(self, filename=None):
+    def export_IGES(self, filename=None, units="m"):
+        """Export the structured B-spline surfaces to IGES entity 128.
+
+        Parameters
+        ----------
+        filename : str or None
+            Output IGES filename.
+        units : str
+            Unit declaration written to the IGES Global section. Coordinates
+            are written without rescaling, so the values stored in ``self``
+            must already be expressed in this unit. The default is meters.
+            Supported canonical units are ``in``, ``mm``, ``ft``, ``mi``,
+            ``m``, ``km``, ``mil``, ``um``, ``cm``, and ``uin``.
+        """
+        unit_aliases = {
+            "inch": "in", "inches": "in",
+            "millimeter": "mm", "millimeters": "mm", "millimetre": "mm", "millimetres": "mm",
+            "foot": "ft", "feet": "ft",
+            "mile": "mi", "miles": "mi",
+            "meter": "m", "meters": "m", "metre": "m", "metres": "m",
+            "kilometer": "km", "kilometers": "km", "kilometre": "km", "kilometres": "km",
+            "micron": "um", "microns": "um", "micrometer": "um", "micrometers": "um",
+            "centimeter": "cm", "centimeters": "cm", "centimetre": "cm", "centimetres": "cm",
+        }
+        units = str(units).strip().lower()
+        units = unit_aliases.get(units, units)
+        iges_units = {
+            "in": (1, "INCH"),
+            "mm": (2, "MM"),
+            "ft": (4, "FT"),
+            "mi": (5, "MI"),
+            "m": (6, "M"),
+            "km": (7, "KM"),
+            "mil": (8, "MIL"),
+            "um": (9, "UM"),
+            "cm": (10, "CM"),
+            "uin": (11, "UIN"),
+        }
+        if units not in iges_units:
+            supported = ", ".join(iges_units)
+            raise ValueError(f"Unsupported IGES units {units!r}. Supported units: {supported}")
+        unit_flag, unit_name = iges_units[units]
         ks = []
         ms = []
         ds = [[],[]]
@@ -191,7 +232,11 @@ class BSEvecStr(BSEvec):
         self._write('                                                                        S      1\n')
         self._write('1H,,1H;,4HSLOT,37H$1$DUA2:[IGESLIB.BDRAFT.B2I]SLOT.IGS;,                G      1\n')
         self._write('17HBravo3 BravoDRAFT,31HBravo3->IGES V3.002 (02-Oct-87),32,38,6,38,15,  G      2\n')
-        self._write('4HSLOT,1.,1,4HINCH,8,0.08,13H871006.192927,1.E-06,6.,                   G      3\n')
+        unit_hollerith = f"{len(unit_name)}H{unit_name}"
+        global_line = f"4HSLOT,1.,{unit_flag},{unit_hollerith},8,0.08,13H871006.192927,1.E-06,6.,"
+        if len(global_line) > 72:
+            raise ValueError("IGES Global-section unit line exceeds 72 data columns")
+        self._write(f"{global_line:<72}G{3:7d}\n")
         self._write('31HD. A. Harrod, Tel. 313/995-6333,24HAPPLICON - Ann Arbor, MI,4,0;     G      4\n')
 
         dirID = 1

@@ -37,6 +37,12 @@ The numerical conversion is intentionally the same later-GeoMACH route:
 structured surface points -> BSE sparse maps -> LSQR control-point solve ->
 IGES entity 128.
 
+IGES unit handling was also modernized. The historical writer hard-coded
+IGES unit flag 1 (`INCH`). The migrated writer defaults to meters (flag 6,
+`M`) and accepts the standard IGES unit choices. The Plot3D conversion utility
+can independently specify input and output units, performing a physical
+coordinate rescaling only when both differ.
+
 The Plot3D reader was made robust without reducing capability:
 
 - no fixed `200 x 200 x 1 x 1000` allocations;

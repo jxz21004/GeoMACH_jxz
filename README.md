@@ -42,6 +42,31 @@ python -m GeoMACH.utilities.plot3d2iges --plot3d surface.xyz --iges surface.igs
 The conversion constructs a BSE model, solves the sparse B-spline fitting
 problem with LSQR, and writes IGES entity type 128 B-spline surfaces.
 
+IGES output units default to meters:
+
+```bash
+geomach_plot3d2iges --plot3d surface.xyz --iges surface.igs
+```
+
+To declare another output unit without rescaling the numeric coordinates:
+
+```bash
+geomach_plot3d2iges --plot3d surface.xyz --iges surface_ft.igs --units ft
+```
+
+If the Plot3D numeric coordinates are in a different physical unit, specify
+both units so the coordinates are rescaled before the BSE fit. For example,
+feet to meters:
+
+```bash
+geomach_plot3d2iges --plot3d surface_ft.xyz --iges surface_m.igs \
+    --input-units ft --units m
+```
+
+Supported IGES units are `in`, `mm`, `ft`, `mi`, `m`, `km`, `mil`, `um`,
+`cm`, and `uin`. When `--input-units` is omitted, Plot3D coordinates are
+assumed to already use the selected output unit.
+
 For `surface.cgns`, first use MDO Lab `cgnsUtilities` to export a formatted
 surface Plot3D file, then run the command above.  Keeping CGNS parsing in
 `cgnsUtilities` avoids duplicating the CGNS implementation inside GeoMACH.
