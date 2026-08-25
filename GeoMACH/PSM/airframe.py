@@ -22,21 +22,21 @@ class Airframe(object):
         self.memberNames.append(name)
 
     def addVertFlip(self, name, comp, p1, p2, w=[1,0], i=[0,1]):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp),i[0],0], [w[0],p1[0],p1[1]], [w[0],p2[0],p2[1]], [w[1],p1[0],p1[1]], [w[1],p2[0],p2[1]]],
                 [[index(comp),i[1],0], [1-w[0],1-p1[0],p1[1]], [1-w[0],1-p2[0],p2[1]], [1-w[1],1-p1[0],p1[1]], [1-w[1],1-p2[0],p2[1]]],
                 ])
 
     def addVert(self, name, comp, p1, p2, w=[1,0], i=[0,1]):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp),i[0],0], [w[0],p1[0],p1[1]], [w[0],p2[0],p2[1]], [w[1],p1[0],p1[1]], [w[1],p2[0],p2[1]]],
                 [[index(comp),i[1],0], [1-w[0],p1[0],p1[1]], [1-w[0],p2[0],p2[1]], [1-w[1],p1[0],p1[1]], [1-w[1],p2[0],p2[1]]],
                 ])
 
     def addCtrVert(self, name, comp1, comp2, p, w=[1,0]):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp1), 0,0], [w[0],p,0.0], [w[1],p,0.0], [0.0,p,0.0], [0.0,p,0.0]],
                 [[index(comp1), 1,0], [1-w[0],1-p,0.0], [1-w[1],1-p,0.0], [0.0,1-p,0.0], [0.0,1-p,0.0]],
@@ -45,7 +45,7 @@ class Airframe(object):
                 ])
 
     def addCtr(self, name, comp1, comp2, i, p):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp1), i,0], [1,p[0],0.0], [1,p[1],0.0], [0,p[0],0.0], [0,p[1],0.0]],
                 [[index(comp2), i,0], [0,p[0],1.0], [0,p[1],1.0], [1,p[0],1.0], [1,p[1],1.0]],
@@ -172,7 +172,7 @@ class Airframe(object):
 
         self.write2TecFEquads('test.dat',[['test',nodes,quads]])
 
-        import BDFwriter
+        from . import BDFwriter
         BDFwriter.writeBDF(filename+'.bdf',nodes,quads,symm,quad_groups,group_names,
                            new_mem, new_nodes, new_ucoord, new_vcoord)
 
@@ -282,7 +282,7 @@ class Airframe(object):
         ncp = bse._size['cp_str']
 
         quads, Wa = PSMlib.computepreviewmemberweights(nmem, 4*nmem, self.membersFlt)
-        linW = numpy.linspace(0,4*nmem-1,4*nmem)
+        linW = numpy.arange(4 * nmem, dtype=int)
 
         B0 = scipy.sparse.csr_matrix((4*nmem,ncp))
         for src in range(4):
@@ -293,7 +293,7 @@ class Airframe(object):
                     inds, P, Q = PSMlib.computepreviewmemberproj(surf+1, src+1, nmem, npts, self.membersFlt)
                     Ta = numpy.ones(npts)
                     Ti = inds - 1
-                    Tj = numpy.linspace(0,npts-1,npts)
+                    Tj = numpy.arange(npts, dtype=int)
                     T = scipy.sparse.csr_matrix((Ta,(Ti,Tj)),shape=(4*nmem,npts))
 
                     mu = bse.get_bspline_option('num_cp', surf, 'u')
@@ -548,7 +548,7 @@ class Airframe(object):
                 idims, jdims = self.faceDims[comp._name][face._name]
                 PSMlib.computememberlocalcoords(comp._num+1, face._num+1, ni, nj, nnode, idims, jdims, surf_indices+1, nodesInt, nodesFlt)
 
-        linW = numpy.linspace(0,nnode-1,nnode)
+        linW = numpy.arange(nnode, dtype=int)
         B0 = scipy.sparse.csr_matrix((nnode,ncp))
         for src in range(4):
             W = scipy.sparse.csr_matrix((nodesFlt[:,src,0],(linW,linW)))
@@ -558,7 +558,7 @@ class Airframe(object):
                     inds, P, Q = PSMlib.computememberproj(surf+1, src+1, nnode, npts, nodesInt, nodesFlt)
                     Ta = numpy.ones(npts)
                     Ti = inds - 1
-                    Tj = numpy.linspace(0,npts-1,npts)
+                    Tj = numpy.arange(npts, dtype=int)
                     T = scipy.sparse.csr_matrix((Ta,(Ti,Tj)),shape=(nnode,npts))
 
                     mu = bse.get_bspline_option('num_cp', surf, 'u')
