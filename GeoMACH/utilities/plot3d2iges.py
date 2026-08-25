@@ -78,10 +78,25 @@ def fit_plot3d_to_iges(
 
     for isurf, surface in enumerate(surfaces):
         nu, nv = surface.shape[:2]
+
         bsurf.set_bspline_option("num_pt", isurf, "u", nu)
         bsurf.set_bspline_option("num_pt", isurf, "v", nv)
-        bsurf.set_bspline_option("num_cp", isurf, "u", max(4, nu))
-        bsurf.set_bspline_option("num_cp", isurf, "v", max(4, nv))
+
+        bsurf.set_bspline_option("num_cp", isurf, "u", nu)
+        bsurf.set_bspline_option("num_cp", isurf, "v", nv)
+
+        bsurf.set_bspline_option(
+            "order",
+            isurf,
+            "u",
+            min(4, nu),
+        )
+        bsurf.set_bspline_option(
+            "order",
+            isurf,
+            "v",
+            min(4, nv),
+        )
 
     bsurf.assemble()
 
