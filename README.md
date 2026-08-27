@@ -71,6 +71,13 @@ For `surface.cgns`, first use MDO Lab `cgnsUtilities` to export a formatted
 surface Plot3D file, then run the command above.  Keeping CGNS parsing in
 `cgnsUtilities` avoids duplicating the CGNS implementation inside GeoMACH.
 
+If you have installed `cgnsUtilities`, you can now use this CLI to convert structured surface or volume cgns files to iges:
+```bash
+geomach_cgns2iges  --cgns cruise_000_surf.cgns  --iges surface1.igs --debug-output \
+    --input-units m --units m
+```
+
+
 ## Migration policy
 
 The migration deliberately avoids replacing GeoMACH with pyGeo or reducing it
