@@ -31,6 +31,7 @@ setup(
     entry_points={
         "console_scripts": [
             "geomach_plot3d2iges=GeoMACH.utilities.plot3d2iges:main",
+            "geomach_cgns2iges = GeoMACH.utilities.cgns2iges:main",
         ]
     },
 )
